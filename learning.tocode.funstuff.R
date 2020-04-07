@@ -7,17 +7,34 @@ dat <- read.csv("data.invert.csv", as.is=T)[,-c(6:9)]
 
 
 # TODO compare tree and data and get just the overlap
+tree.genera <- trees[[1]]$tip.label
+good.genera <- unique(dat$Genus[which(dat$Genus %in% tree.genera)])
+hit <- sample(which(dat$Genus == good.genera[1]), 1)
+dat.pruned <- dat[hit, ]
+for(i in 2:length(good.genera)){
+  hit <- which(dat$Genus == good.genera[i])
+  if(length(hit)>1)  hit <- sample(hit, 1)
+  dat.pruned <- rbind(dat.pruned, dat[hit, ])
+}
+
+missing <- trees[[1]]$tip.label[!trees[[1]]$tip.label %in% dat.pruned$Genus]
+trees.pruned <- list()
+for(i in 1:100){
+  trees.pruned[[i]] <- drop.tip(trees[[i]], tip = missing)
+}
 
 
 
 library(chromePlus)
 
 # slim the data to include only the desired data
-chrom <- data.frame(dat$binom, dat$haoloid.num, dat$chromosome, stringsAsFactors = F)
-colnames(chrom) <- c("species", "haploid", "chrom")
+chrom <- data.frame(dat.pruned$Genus,
+                    dat.pruned$haoloid.num,
+                    dat.pruned$chromosome, stringsAsFactors = F)
+colnames(chrom) <- c("genus", "haploid", "chrom")
 chrom$chrom[chrom$chrom == "mono"] <- 0
 chrom$chrom[chrom$chrom == "holo"] <- 1
-chrom <- chrom[chrom$haploid != "#VALUE!", ]
+chrom <- chrom[complete.cases(chrom), ]
 chrom$haploid <- as.numeric(chrom$haploid)
 chrom$chrom <- as.numeric(chrom$chrom)
 ### range should be larger than that observed in the
@@ -26,7 +43,7 @@ chrom$chrom <- as.numeric(chrom$chrom)
 # check the range of chromosome numbers present
 range(chrom$haploid)
 
-chroms <- datatoMatrix(chrom, range=c(1,6), hyper=T)
+chroms <- datatoMatrix(chrom, range=range(chrom$haploid), hyper=T)
 
 # set the MCMC chain length
 iter <- 5
@@ -34,7 +51,7 @@ library(diversitree)
 
 ### w is best set by doing a short run and getting some idea of the
 ### confidence interval on these parameters
-lk.mk <- make.mkn(trees[[1]], states=chroms, k=ncol(chroms), strict=F, control=list(method="ode"))
+lk.mk <- make.mkn(trees.pruned[[1]], states=chroms, k=ncol(chroms), strict=F, control=list(method="ode"))
 
 ### This sets up the model described in the paper
 con.lk.mk<-constrainMkn(data=chroms, lik=lk.mk, hyper=T,
