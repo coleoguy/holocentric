@@ -20,16 +20,17 @@ for(i in 2:length(good.genera)){
 missing <- trees[[1]]$tip.label[!trees[[1]]$tip.label %in% dat.pruned$Genus]
 trees.pruned <- list()
 for(i in 1:100){
-  trees.pruned[[i]] <- drop.tip(trees[[i]], tip = missing)
+  cur.tree <- drop.tip(trees[[i]], tip = missing)
+  cur.tree$edge.length <-  cur.tree$edge.length/ max(branching.times(cur.tree))
+  trees.pruned[[i]] <- cur.tree
 }
-
 
 
 library(chromePlus)
 
 # slim the data to include only the desired data
 chrom <- data.frame(dat.pruned$Genus,
-                    dat.pruned$haoloid.num,
+                    dat.pruned$haploid.num,
                     dat.pruned$chromosome, stringsAsFactors = F)
 colnames(chrom) <- c("genus", "haploid", "chrom")
 chrom$chrom[chrom$chrom == "mono"] <- 0
@@ -56,9 +57,11 @@ lk.mk <- make.mkn(trees.pruned[[1]], states=chroms, k=ncol(chroms), strict=F, co
 ### This sets up the model described in the paper
 con.lk.mk<-constrainMkn(data=chroms, lik=lk.mk, hyper=T,
                         polyploidy=F, verbose=F,
-                        constrain=list(drop.demi=T, drop.poly=T))
-temp <- mcmc(con.lk.mk, x.init=runif(6,0,10), w=1, nsteps=iter/10)
-w <- diff(sapply(temp[1:6], quantile, c(.05, .95)))
+                        constrain=list(drop.demi=T))
+argnames(con.lk.mk)
+temp <- mcmc(con.lk.mk, x.init=runif(8,0,10), w=1, nsteps=20)
+temp[-c(1:5),]
+w <- diff(sapply(temp[2:9], quantile, c(.05, .95)))
 
 
 ### this will cycle through all 100 trees
