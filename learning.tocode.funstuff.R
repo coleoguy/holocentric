@@ -47,7 +47,7 @@ range(chrom$haploid)
 chroms <- datatoMatrix(chrom, range=range(chrom$haploid), hyper=T)
 
 # set the MCMC chain length
-iter <- 5
+iter <- 20
 library(diversitree)
 
 ### w is best set by doing a short run and getting some idea of the
@@ -59,7 +59,7 @@ con.lk.mk<-constrainMkn(data=chroms, lik=lk.mk, hyper=T,
                         polyploidy=F, verbose=F,
                         constrain=list(drop.demi=T))
 argnames(con.lk.mk)
-temp <- mcmc(con.lk.mk, x.init=runif(8,0,10), w=1, nsteps=20)
+temp <- mcmc(con.lk.mk, x.init=runif(8,0,10), w=1, nsteps=iter)
 temp[-c(1:5),]
 w <- diff(sapply(temp[2:9], quantile, c(.05, .95)))
 
@@ -68,14 +68,14 @@ w <- diff(sapply(temp[2:9], quantile, c(.05, .95)))
 results <- list()
 for(i in 1:100){
   # make the initial likelihood function
-  lk.mk <- make.mkn(tree[[i]], states = chroms, k = ncol(chroms),
+  lk.mk <- make.mkn(trees.pruned[[i]], states = chroms, k = ncol(chroms),
                     strict = F, control = list(method = "ode"))
   # constrain to a biologically realistic model of chrom evolution
   con.lk.mk<-constrainMkn(data = chroms, lik = lk.mk, hyper = T,
                           polyploidy = F, verbose = F,
-                          constrain = list(drop.demi = T, drop.poly = T))
+                          constrain = list(drop.demi = T))
   # run the MCMC
-  results[[i]] <- mcmc(con.lk.mk, x.init = colMeans(temp)[1:6],
+  results[[i]] <- mcmc(con.lk.mk, x.init = colMeans(temp)[2:9],
                        w = w, nsteps = iter)
 }
 
