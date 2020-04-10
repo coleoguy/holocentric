@@ -14,7 +14,7 @@ trees <- read.nexus("misof.backbone.nex")
 dat <- read.csv("data.invert.csv", as.is = T)[, -c(6:9)]
 
 # set the MCMC chain length
-iter <- 10
+iter <- 50
 
 # we scale our trees so lets store that info for transforming
 # rates back into millions of years
@@ -47,11 +47,11 @@ for(i in 1:2){
     argnames(con.lk.mk)
     prior <- make.prior.exponential(1)
     temp <- mcmc(con.lk.mk,
-                 x.init = runif(6, 0, 10),
+                 x.init = runif(6, 0, 5),
                  prior = prior,
                  w = 1,
-                 nsteps = iter/10)
-    temp <- temp[-c(1:10), ]
+                 nsteps = 10)
+    temp <- temp[-c(1:5), ]
     w <- diff(sapply(temp[2:7],
                      quantile, c(.05, .95)))
   }
