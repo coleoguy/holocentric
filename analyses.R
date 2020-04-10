@@ -66,5 +66,5 @@ for(i in 1:2){
   write.csv(results[[i]], file=paste("tree",i,".csv", sep=""))
 }
 
-# NOTE monocentric is state 2 and holocentric is state 1
+# NOTE monocentric is state 2 and holocentric is state 1 in results
 
