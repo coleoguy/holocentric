@@ -115,8 +115,8 @@ getDataOrder <- function(trees, dat, order){
   tree.depths <- c()
   for(i in 1:100){
     cur.tree <- drop.tip(trees[[i]], tip = missing)
-    cur.tree$edge.length <-  cur.tree$edge.length / max(branching.times(cur.tree))
     tree.depths[i] <- max(branching.times(cur.tree))
+    cur.tree$edge.length <-  cur.tree$edge.length / max(branching.times(cur.tree))
     trees.pruned[[i]] <- cur.tree
   }
   chrom <- data.frame(dat.pruned$Genus,
@@ -130,7 +130,7 @@ getDataOrder <- function(trees, dat, order){
   chrom <- chrom[complete.cases(chrom), ]
   chrom$chrom <- as.numeric(chrom$chrom)
   chroms <- datatoMatrix(chrom,
-                         range = range(chrom$haploid) + c(0, 3),
+                         range = range(chrom$haploid) + c(0, 5),
                         hyper = F)
 
   results <- list()
