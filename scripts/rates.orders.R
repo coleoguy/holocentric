@@ -7,6 +7,11 @@ library(chromePlus) # chromosome models
 library(diversitree) # basic likelihood functions
 library(doMC) # this allows multicore runs on a mac
 registerDoMC(14)
+iter <- 50
+# for troubleshooting we might run on just a couple of trees
+# usually ntree should be set equal to the number of trees being
+# analyzed.
+ntree <- 100
 
 # load custom functions
 source("functions.R")
@@ -21,12 +26,14 @@ tree <- foo[[1]]
 genera <- row.names(foo[[2]])
 orders <- dat$Order[dat$Genus %in% genera]
 orders <- as.data.frame(table(orders))
+# here I am reducing down to only estimate rates in orders
+# with at least 20 species
 orders <- as.character(orders$orders[orders$Freq>=20])
 
 # this large outside loop will repeat for each order we are
 # evaluating.
 
-for(i in 1:length(orders)){
+for(i in 8:length(orders)){
   foo <- getDataOrder(trees, dat, order = orders[i])
   trees.pruned <- foo[[1]]
   chroms <- foo[[2]]
@@ -46,14 +53,14 @@ for(i in 1:length(orders)){
                    x.init = runif(2, 0, 1),
                    prior = prior,
                    w = 1,
-                   nsteps = 20,
+                   nsteps = 40,
                    upper = 50,
                    lower = 0)
   temp.wp <- mcmc(con.lk.mk.wp,
                    x.init = runif(3, 0, 1),
                    prior = prior,
                    w = 1,
-                   nsteps = 20,
+                   nsteps = 40,
                    upper = 50,
                    lower = 0)
   temp.wop <- temp.wop[-c(1:10), ]
@@ -62,9 +69,7 @@ for(i in 1:length(orders)){
                       quantile, c(.05, .95)))
   w.wp <- diff(sapply(temp.wp[2:4],
                       quantile, c(.05, .95)))
-  ## OK now we are ready to run our analysis
-  results <- list()
-  x <- foreach(j=1:100) %dopar%{
+  x <- foreach(j=1:ntree) %dopar%{
     # slim the data to include only the desired data
     # and generate the format table needed by chromPlus
     foo <- getDataOrder(trees, dat, order=orders[i])
@@ -77,28 +82,23 @@ for(i in 1:length(orders)){
     con.lk.mk<-constrainMkn(data = chroms, lik = lk.mk, hyper = F,
                             polyploidy = F, verbose = F,
                             constrain = list(drop.demi = T, drop.poly = T))
-    result[[j]] <- mcmc(con.lk.mk,
+    cur.res <- mcmc(con.lk.mk,
                         x.init =  runif(2, 0, 1),
                         prior = prior,
                         w = w.wop,
                         nsteps = iter,
                         upper = 50,
                         lower = 0)
-    write.csv(result[[j]], file=paste("tree.nop",
-                                      orders[i],
-                                      ".", j,".csv",
-                                      sep=""))
+    cur.res
   }
-  results <- list()
-  for(i in 1:100){
-    scaler <- max(branching.times(trees.pruned[[i]]))
-    x[,2:3] <- x[,2:3]/scaler
-    results[[i]] <- x
+  scaler <- getDataOrder(trees, dat, order=orders[i])[[3]]
+  for(k in 1:ntree){
+    x[[k]][,2:3] <- x[[k]][,2:3]/scaler[k]
   }
-  save(results, file="rates.", orders[i] ,".wop")
+  save(x, file=paste("../results/rates.", orders[i], ".wop.rda", sep=""))
 
-  results <- list()
-  x <- foreach(j=1:100) %dopar%{
+#### NOW WE RUN WITH POLYPLOIDY
+  x <- foreach(j=1:ntree) %dopar%{
     # slim the data to include only the desired data
     # and generate the format table needed by chromPlus
     foo <- getDataOrder(trees, dat, order=orders[i])
@@ -111,31 +111,20 @@ for(i in 1:length(orders)){
     con.lk.mk<-constrainMkn(data = chroms, lik = lk.mk, hyper = F,
                             polyploidy = F, verbose = F,
                             constrain = list(drop.demi = T, drop.poly = F))
-    result[[j]] <- mcmc(con.lk.mk,
-                        x.init =  runif(3, 0, 1),
-                        prior = prior,
-                        w = w.wp,
-                        nsteps = iter,
-                        upper = 50,
-                        lower = 0)
-    write.csv(result[[j]], file=paste("tree.p",
-                                      orders[i],
-                                      ".", j,".csv",
-                                      sep=""))
+    cur.res <- mcmc(con.lk.mk,
+                    x.init =  runif(3, 0, 1),
+                    prior = prior,
+                    w = w.wp,
+                    nsteps = iter,
+                    upper = 50,
+                    lower = 0)
+    cur.res
   }
-  results <- list()
-  for(i in 1:100){
-    scaler <- max(branching.times(trees.pruned[[i]]))
-    x[,2:4] <- x[,2:4]/scaler
-    results[[i]] <- x
+  scaler <- getDataOrder(trees, dat, order=orders[i])[[3]]
+  for(k in 1:ntree){
+    x[[k]][,2:4] <- x[[k]][,2:4]/scaler[k]
   }
-  save(results, file="rates.", orders[i] ,".wp")
-
-
-
-
-
-
+  save(x, file=paste("../results/rates.", orders[i], ".wp.rda", sep=""))
 }
 
 
@@ -152,44 +141,9 @@ for(i in 1:length(orders)){
 
 
 
-# set the MCMC chain length
-iter <- 50
 
 
 
-
-
-
-# we scale our trees so lets store that info for transforming
-# rates back into millions of years
-rate.scalers <- c()
-
-#############################
-#                           #
-# TEST RUN TO GET W         #
-#                           #
-#############################
-
-# slim the data to include only the desired data
-# and generate the format table needed by chromPlus
-foo <- getData(trees, dat)
-rm(foo)
-
-
-
-result <- list()
-# we will loop through all 100 trees
-
-# NOTE monocentric is state 2 and holocentric is state 1 in results
-
-for(i in 1:10){
-  foo <- read.csv(paste("tree", i,".csv", sep=""))
-  if(i == 1){
-    plot(foo$pol1 - foo$pol2,type="l", ylim=c(-.4,.6))
-  }else{
-    lines(foo$pol1 - foo$pol2, col=rainbow(10)[i])
-  }
-}
 
 
 
