@@ -2,7 +2,7 @@ library(phytools)
 library(chromePlus)
 library(viridis)
 trees <- read.nexus("../data/misof.backbone.nex")
-trees <- read.nexus("../data/rainford.backbone.nex")
+#trees <- read.nexus("../data/rainford.backbone.nex")
 dat <- read.csv("../data/data.invert.csv", as.is=T)
 
 
@@ -15,6 +15,8 @@ dat <- foo[[2]]
 
 chrom.type <- dat$chrom
 names(chrom.type) <- dat$genus
+new.haps <- round(log(dat$haploid)*10)
+range(new.haps)
 
 maps.est <- make.simmap(tree = tree,
                     x = chrom.type,
@@ -30,7 +32,6 @@ smap.est <- densityMap(trees = maps.est,
 smap.est2 <- setMap(smap.est, c("gray", "black"))
 plot(smap.est2, fsize=c(.00001, .4),
      lwd=.95,type="fan")
-new.haps <- round(log(dat$haploid)*10)
 cols <- viridis(38)
 tip.cols <- c()
 foo <- c()
