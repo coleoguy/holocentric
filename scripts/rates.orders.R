@@ -33,7 +33,7 @@ orders <- as.character(orders$orders[orders$Freq>=20])
 # this large outside loop will repeat for each order we are
 # evaluating.
 
-for(i in 1:length(orders)){
+for(i in 8:length(orders)){
   foo <- getDataOrder(trees, dat, order = orders[i])
   trees.pruned <- foo[[1]]
   chroms <- foo[[2]]
@@ -89,12 +89,6 @@ for(i in 1:length(orders)){
                         nsteps = iter,
                         upper = 50,
                         lower = 0)
-    # this within csv write was done when troubleshooting probably
-    # overkill at this point though.
-    # write.csv(cur.res, file=paste("../results/tree.nop.",
-    #                                   orders[i],
-    #                                   ".", j,".csv",
-    #                                   sep=""))
     cur.res
   }
   scaler <- getDataOrder(trees, dat, order=orders[i])[[3]]
