@@ -7,7 +7,7 @@ load(file="../results/munged.data.RData")
 #Plot of results without polyploidy
 ggplot(results.wop, aes(y=rate, x=as.factor(type))) +
   geom_boxplot(aes(fill=as.factor(order)), stat="boxplot",
-               alpha=0.5, width=0.2, position=position_dodge(0.5)) +
+               alpha=0.5, width=0.4, position=position_dodge(0.7)) +
   theme_bw() +
   theme(text=element_text(family="sans", face="plain", color="#000000",
                           size=15, hjust=0.5, vjust=0.5),
