@@ -1,15 +1,28 @@
 load("../results/cent.rates.RData")
+library(coda)
+fission <- rates$asc1-rates$asc2
+fusion <- rates$desc1-rates$desc2
+poly <- rates$pol1-rates$pol2
+hpdfis <- HPDinterval(as.mcmc(fission))
+hpdfus <- HPDinterval(as.mcmc(fusion))
+hpdpol <- HPDinterval(as.mcmc(poly))
 
+cols <- c(rgb(1, 0, 0, .2), rgb(0, 1, 0, .2), rgb(0, 0, 1, .2))
 plot(0,0,col="white",
-     ylim=c(0,400),
-     xlim=c(-.02,.02),
-     xlab="rate difference",
+     ylim=c(-50,700),
+     xlim=c(-.02,.01),
+     xlab=expression(paste(Delta, R[x])),
      ylab="density")
 abline(v=0, lty=3,col="red")
-polygon(density(rates$asc1-rates$asc2,bw=.001), col=rgb(1,0,0,.1))
-polygon(density(rates$desc1-rates$desc2,bw=.001),col=rgb(0,1,0,.1))
-polygon(density(rates$pol1-rates$pol2,bw=.001),col=rgb(0,0,1,.1))
-points(pch=22, bg=c(rgb(1,0,0,.2), rgb(0,1,0,.2), rgb(0,0,1,.2)),
-       x=rep(.01,3), y=c(400,370,340))
-text(x=rep(.01,3), y=c(400,370,340), pos=4, cex=.7,labels=c("ascending","descending","polyploidy"))
+polygon(density(fission, bw = .0005), col = cols[1])
+polygon(density(fusion, bw = .0005),col = cols[2])
+polygon(density(poly, bw = .0005),col = cols[3])
+points(pch = 22, bg = cols,
+       x = rep(-.02, 3), y = c(700, 650, 600))
+text(x = rep(-.02, 3), y = c(700, 650, 600), pos = 4, cex = .7,
+     labels=c("fission", "fusion", "polyploidy"))
+
+lines(y=rep(-15, 2), x=hpdfis, col=cols[1], lwd=4)
+lines(y=rep(-37, 2), x=hpdfus, col=cols[2], lwd=4)
+lines(y=rep(-59, 2), x=hpdpol, col=cols[3], lwd=4)
 # export this as pdf at 4x4
