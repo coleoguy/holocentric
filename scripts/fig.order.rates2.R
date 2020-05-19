@@ -1,33 +1,45 @@
-library(ggraptR)
 library(ggplot2)
-#ggraptR(results.wop)
-
-
+library(tidybayes)
 load(file="../results/order.rates.RData")
 
+# get parameter names correct
+foo <- as.character(results.wop$type)
+foo[is.na(foo)] <- "fission"
+foo[foo!="fission"] <- "fusion"
+results.wop$type <- as.factor(foo)
+
+foo <- as.character(results.wp$type)
+foo[foo=="asc"] <- "fission"
+foo[foo=="pol"] <- "polyploidy"
+foo[foo=="desc"] <- "fusion"
+results.wp$type <- as.factor(foo)
 results.wop$order <- factor(results.wop$order, levels(results.wop$order)[c(4, 7, 9, 1:3, 5, 6, 8, 10)])
 results.wp$order <- factor(results.wp$order, levels(results.wp$order)[c(4, 7, 9, 1:3, 5, 6, 8, 10)])
 
-#Plot of results without polyploidy
-ggplot(results.wop, aes(y=rate, x=as.factor(type))) +
-  geom_boxplot(aes(fill=as.factor(order)), stat="boxplot",
-               alpha=0.5, width=0.4, position=position_dodge(0.7)) +
+
+# this code is for single legend
+ggplot(results.wop, aes(x=type, y=rate, color=order)) +
+  geom_jitter(cex=2, alpha=1,position=position_jitterdodge(.3)) +
+  theme_bw()+
+  guides(color=guide_legend(title="Order"))
+# this code is for plot wo polyploidy
+ggplot(results.wop, aes(x = type, y = rate, color = order)) +
+  geom_jitter(cex = .5, alpha = .1,
+              position = position_jitterdodge(.3)) +
   theme_bw() +
-  theme(text=element_text(family="sans", face="plain", color="#000000",
-                          size=15, hjust=0.5, vjust=0.5),
-        panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
-  guides(fill=guide_legend(title="Order")) +
-   xlab("Type of Rearrangement") + ylab("Rate")
-# export at 7"x3.5"
-#Plot of results with polyploidy
-ggplot(results.wp, aes(y=rate, x=as.factor(type))) +
-  geom_boxplot(aes(fill=as.factor(order)), stat="boxplot",
-               alpha=0.5, width=0.4, position=position_dodge(0.7)) +
-  theme_bw() +
-  theme(text=element_text(family="sans", face="plain", color="#000000",
-                          size=15, hjust=0.5, vjust=0.5),
-        panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
-  guides(fill=guide_legend(title="Order")) +
-  xlab("Type of Rearrangement") + ylab("Rate")
+  theme(legend.position = "none") +
+  xlab("Parameter") + ylab("Rate") +
+  stat_summary(aes(x = type, y = rate, fill = order),
+               fun.data = "mean_hdci", fun.args = list(mult=1),
+               size = 0.4, position = position_jitterdodge(0),
+               inherit.aes = FALSE) # exported 4x4
+# this code is for plot w polyploidy
+ggplot(results.wp, aes(x=type, y=rate, color=order)) +
+  geom_jitter(cex=.5, alpha=.1,position=position_jitterdodge(.3)) +
+  theme_bw()+
+  theme(legend.position = "none")+
+  xlab("Parameter") + ylab("Rate") +
+  stat_summary(aes(x=type, y=rate, fill=order), fun.data="mean_hdci", fun.args = list(mult=1),
+               size = 0.4, position = position_jitterdodge(0),
+               inherit.aes = FALSE) # exported 6x4
+
