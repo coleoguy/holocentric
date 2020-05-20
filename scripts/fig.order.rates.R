@@ -4,8 +4,8 @@ load(file="../results/order.rates.RData")
 
 # get parameter names correct
 foo <- as.character(results.wop$type)
-foo[is.na(foo)] <- "fission"
-foo[foo!="fission"] <- "fusion"
+foo[foo=="asc"] <- "fission"
+foo[foo=="desc"] <- "fusion"
 results.wop$type <- as.factor(foo)
 
 foo <- as.character(results.wp$type)
@@ -13,8 +13,22 @@ foo[foo=="asc"] <- "fission"
 foo[foo=="pol"] <- "polyploidy"
 foo[foo=="desc"] <- "fusion"
 results.wp$type <- as.factor(foo)
-results.wop$order <- factor(results.wop$order, levels(results.wop$order)[c(4, 7, 9, 1:3, 5, 6, 8, 10)])
-results.wp$order <- factor(results.wp$order, levels(results.wp$order)[c(4, 7, 9, 1:3, 5, 6, 8, 10)])
+
+# lets figure out the order for the data
+foo <- aggregate(x = results.wp$rate,
+                 by = list(results.wp$order, results.wp$type),
+                 FUN = mean)
+foo <- foo[foo$Group.2=="fission",]
+foo <- foo[order(foo$x, decreasing=T),]
+x <- row.names(foo)[which(foo$Group.1 %in% c("Hemiptera","Lepidoptera","Odonata"))]
+x <- c(x, row.names(foo)[which(!foo$Group.1 %in% c("Hemiptera","Lepidoptera","Odonata"))])
+x <- as.numeric(x)
+
+# reorder so taxa are in right order
+results.wop$order <- factor(results.wop$order,
+                            levels(results.wop$order)[x])
+results.wp$order <- factor(results.wp$order,
+                           levels(results.wp$order)[x])
 
 
 # this code is for single legend
