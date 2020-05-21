@@ -4,6 +4,10 @@ ratesb1 <- rates[,-1]
 ratesb2 <- f.results
 rm(f.results, rates)
 
+
+plot(density(ratesb1$asc1))
+lines(density(ratesb2$asc1), col="red")
+
 par(mfcol=c(2,2))
 plot(density(ratesb1$asc1 - ratesb1$asc2), ylim=c(0,120),
      xlab=expression(paste(Delta, R[gamma])),
