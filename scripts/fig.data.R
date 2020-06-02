@@ -74,7 +74,16 @@ for(i in 1:599){
   tip.orders[i] <- foo$Order[foo$Genus == tree$tip.label[i]][1]
 }
 tip.colors <- rep("darkgray", 599)
-tip.colors[tip.orders == "Coleoptera"] <- "blue"
+tip.colors[tip.orders == "Lepidoptera"] <- "#fa7763"
+tip.colors[tip.orders == "Hemiptera"] <- "#e59404"
+tip.colors[tip.orders == "Odonata"] <- "#a2a903"
+tip.colors[tip.orders == "Blattodea"] <- "#28b600"
+tip.colors[tip.orders == "Phasmatodea"] <- "#00c07b"
+tip.colors[tip.orders == "Isoptera"] <- "#00c4c3"
+tip.colors[tip.orders == "Coleoptera"] <- "#0ab6ff"
+tip.colors[tip.orders == "Hymenoptera"] <- "#9892ff"
+tip.colors[tip.orders == "Neuroptera"] <- "#e56cf5"
+tip.colors[tip.orders == "Diptera"] <- "#ff5fc0"
 
 plotTree.wBars(tree=tree,
                x=chrom.num,
