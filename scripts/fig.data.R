@@ -18,6 +18,8 @@ names(chrom.type) <- dat$genus
 new.haps <- round(log(dat$haploid)*10)
 range(new.haps)
 
+
+
 maps.est <- make.simmap(tree = tree,
                     x = chrom.type,
                     model = "ARD",
@@ -53,5 +55,32 @@ gradient.rect(xleft=2,
 # export main figure as 6"x6" pdf
 # this is the color range
 c(2, 29, 57, 84)
+
+
+
+
+
+
+
+
+
+
+# get bar tips
+chrom.num <- dat$haploid
+names(chrom.num) <- dat$genus
+foo <- read.csv("../data/phylo.data.csv", as.is=T)
+tip.orders <- c()
+for(i in 1:599){
+  tip.orders[i] <- foo$Order[foo$Genus == tree$tip.label[i]][1]
+}
+tip.colors <- rep("darkgray", 599)
+tip.colors[tip.orders == "Coleoptera"] <- "blue"
+
+plotTree.wBars(tree=tree,
+               x=chrom.num,
+               type="fan",
+               col=tip.colors,
+               border=NA)
+
 
 

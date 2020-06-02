@@ -53,6 +53,10 @@ temp.wop <- mcmc(con.lk.mk,
 temp.wop <- temp.wop[-c(1:10), ]
 w.wop <- diff(sapply(temp.wop[2:7],
                     quantile, c(.05, .95)))
+
+
+## TODO right here run the crap without polyploidy####
+
 # now with polyploidy
 con.lk.mk<-constrainMkn(data = chroms, lik = lk.mk, hyper = T,
                         polyploidy = F, verbose = F,
