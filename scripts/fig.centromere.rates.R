@@ -1,4 +1,4 @@
-load("../results/cent.rates.RData")
+load("../results/cent.rates-backbone1.RData")
 library(coda)
 fission <- rates$asc1-rates$asc2
 fusion <- rates$desc1-rates$desc2
@@ -7,7 +7,7 @@ hpdfis <- HPDinterval(as.mcmc(fission))
 hpdfus <- HPDinterval(as.mcmc(fusion))
 hpdpol <- HPDinterval(as.mcmc(poly))
 
-cols <- c(rgb(1, 0, 0, .2), rgb(0, 1, 0, .2), rgb(0, 0, 1, .2))
+cols <- c(rgb(1, 0, 0, .5), rgb(0, 1, 0, .5), rgb(0, 0, 1, .5))
 plot(0,0,col="white",
      ylim=c(-50,700),
      xlim=c(-.02,.01),
