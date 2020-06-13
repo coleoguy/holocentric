@@ -1,3 +1,5 @@
+# this code makes plots for order rate estimats
+
 library(ggplot2)
 library(tidybayes)
 load(file="../results/order.rates.RData")
@@ -31,11 +33,13 @@ results.wp$order <- factor(results.wp$order,
                            levels(results.wp$order)[x])
 
 
-# this code is for single legend
+# we used this code to just get a legend we dont actually use
+# or care about the data plotted here
 ggplot(results.wop, aes(x=type, y=rate, color=order)) +
   geom_jitter(cex=2, alpha=1,position=position_jitterdodge(.3)) +
   theme_bw()+
   guides(color=guide_legend(title="Order"))
+
 # this code is for plot wo polyploidy
 ggplot(results.wop, aes(x = type, y = rate, color = order)) +
   geom_jitter(cex = .5, alpha = .1,
@@ -47,6 +51,7 @@ ggplot(results.wop, aes(x = type, y = rate, color = order)) +
                fun.data = "mean_hdci", fun.args = list(mult=1),
                size = 0.4, position = position_jitterdodge(0),
                inherit.aes = FALSE) # exported 4x4
+
 # this code is for plot w polyploidy
 ggplot(results.wp, aes(x=type, y=rate, color=order)) +
   geom_jitter(cex=.5, alpha=.1,position=position_jitterdodge(.3)) +

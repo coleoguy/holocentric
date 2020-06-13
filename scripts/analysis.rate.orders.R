@@ -1,5 +1,6 @@
-# Heath, Michelle, and Sarah testing this old holocentric
-# monocentric idea on a tree of insects
+# This script is used to estimate rates of chromosome
+# number evolution in orders of insects with at least
+# 20 tips represented on our phylogeny.
 
 # load packages
 library(ape) # basic phylo tools
@@ -33,7 +34,7 @@ orders <- as.character(orders$orders[orders$Freq>=20])
 # this large outside loop will repeat for each order we are
 # evaluating.
 
-for(i in 8:length(orders)){
+for(i in 1:length(orders)){
   foo <- getDataOrder(trees, dat, order = orders[i])
   trees.pruned <- foo[[1]]
   chroms <- foo[[2]]
@@ -57,16 +58,16 @@ for(i in 8:length(orders)){
                    upper = 50,
                    lower = 0)
   temp.wp <- mcmc(con.lk.mk.wp,
-                   x.init = runif(3, 0, 1),
-                   prior = prior,
-                   w = 1,
-                   nsteps = 40,
-                   upper = 50,
-                   lower = 0)
+                  x.init = runif(3, 0, 1),
+                  prior = prior,
+                  w = 1,
+                  nsteps = 40,
+                  upper = 50,
+                  lower = 0)
   temp.wop <- temp.wop[-c(1:10), ]
   temp.wp <- temp.wp[-c(1:10), ]
   w.wop <- diff(sapply(temp.wop[2:3],
-                      quantile, c(.05, .95)))
+                       quantile, c(.05, .95)))
   w.wp <- diff(sapply(temp.wp[2:4],
                       quantile, c(.05, .95)))
   x <- foreach(j=1:ntree) %dopar%{
@@ -83,12 +84,12 @@ for(i in 8:length(orders)){
                             polyploidy = F, verbose = F,
                             constrain = list(drop.demi = T, drop.poly = T))
     cur.res <- mcmc(con.lk.mk,
-                        x.init =  runif(2, 0, 1),
-                        prior = prior,
-                        w = w.wop,
-                        nsteps = iter,
-                        upper = 50,
-                        lower = 0)
+                    x.init =  runif(2, 0, 1),
+                    prior = prior,
+                    w = w.wop,
+                    nsteps = iter,
+                    upper = 50,
+                    lower = 0)
     cur.res
   }
   scaler <- getDataOrder(trees, dat, order=orders[i])[[3]]
@@ -97,7 +98,7 @@ for(i in 8:length(orders)){
   }
   save(x, file=paste("../results/rates.", orders[i], ".wop.rda", sep=""))
 
-#### NOW WE RUN WITH POLYPLOIDY
+  #### NOW WE RUN WITH POLYPLOIDY
   x <- foreach(j=1:ntree) %dopar%{
     # slim the data to include only the desired data
     # and generate the format table needed by chromPlus

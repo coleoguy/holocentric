@@ -1,8 +1,11 @@
+# this script contains chunks of code to create our
+# plot of our data these pieces are then combined for
+# the final figure presented in the paper.
+
 library(phytools)
 library(chromePlus)
 library(viridis)
 trees <- read.nexus("../data/misof.backbone.nex")
-#trees <- read.nexus("../data/rainford.backbone.nex")
 dat <- read.csv("../data/data.invert.csv", as.is=T)
 
 
@@ -34,36 +37,8 @@ smap.est <- densityMap(trees = maps.est,
 smap.est2 <- setMap(smap.est, c("gray", "black"))
 plot(smap.est2, fsize=c(.00001, .4),
      lwd=.95,type="fan")
-cols <- viridis(38)
-tip.cols <- c()
-foo <- c()
-for(i in 1:length(tree$tip.label)){
-  hit <- new.haps[dat$genus == tree$tip.label[i]]
-  foo[i] <- hit
-  tip.cols[i] <- cols[(hit-6)]
-}
-tiplabels(pch=16, col = tip.cols, cex=.45)
 
-library(plotrix)
-plot(0,0,col="white", xlim=c(0,10),ylim=c(0,10))
-gradient.rect(xleft=2,
-              ybottom=2,
-              xright=6,
-              ytop=4,
-              col=cols,
-              nslices=50,gradient="x",border=NA)
-# export main figure as 6"x6" pdf
-# this is the color range
-c(2, 29, 57, 84)
-
-
-
-
-
-
-
-
-
+# export 5x5
 
 # get bar tips
 chrom.num <- dat$haploid
@@ -73,6 +48,7 @@ tip.orders <- c()
 for(i in 1:599){
   tip.orders[i] <- foo$Order[foo$Genus == tree$tip.label[i]][1]
 }
+tip.orders[tip.orders=="Hempitera"] <- "Hemiptera"
 tip.colors <- rep("darkgray", 599)
 tip.colors[tip.orders == "Lepidoptera"] <- "#fa7763"
 tip.colors[tip.orders == "Hemiptera"] <- "#e59404"
@@ -89,7 +65,9 @@ plotTree.wBars(tree=tree,
                x=chrom.num,
                type="fan",
                col=tip.colors,
-               border=NA)
-
+               border=NA,
+               width=.009,
+               edge.width=.01)
+# export at 5x5
 
 

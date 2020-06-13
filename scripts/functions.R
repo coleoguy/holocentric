@@ -1,9 +1,16 @@
+# this file contains different helper functions that we
+# for either selecting among possible tip states for each
+# mcmc run or for extracting info that is reported in the
+# paper
+
 # this function takes posterior of trees and data
 # it returns a list with pruned data and random sample of possible
 # tip values if multiple points are available.
 getData <- function(trees, dat){
   tree.genera <- trees[[1]]$tip.label
   good.genera <- unique(dat$Genus[which(dat$Genus %in% tree.genera)])
+  # get total possible matched data
+  record.count <- dat[dat$Genus %in% good.genera,]
   hit <- sample(which(dat$Genus == good.genera[1]), 1)
   dat.pruned <- dat[hit, ]
   for(i in 2:length(good.genera)){
@@ -67,16 +74,6 @@ getData2 <- function(trees, dat){
                       as.numeric(dat.pruned$haploid.num),
                       dat.pruned$chromosome, stringsAsFactors = F)
   colnames(chrom) <- c("genus", "haploid", "chrom")
-  # this code means that monocentric will be state 2 in the output
-  # and holocentric will be state one in the output
-#  chrom$chrom[chrom$chrom == "mono"] <- 0
-#  chrom$chrom[chrom$chrom == "holo"] <- 1
-  #chrom <- chrom[complete.cases(chrom), ]
-  #chrom$chrom <- as.numeric(chrom$chrom)
-  #chroms <- datatoMatrix(chrom,
-  #                       range = range(chrom$haploid) + c(0, 3),
-   #                      hyper = T)
-
   results <- list()
   results[[1]] <- trees.pruned
   results[[2]] <- chrom

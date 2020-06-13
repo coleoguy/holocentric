@@ -1,5 +1,5 @@
-# Heath, Michelle, and Sarah testing this old holocentric
-# monocentric idea on a tree of insects
+# This script fits model to whole tree where holo and mono
+# have different rates of chromosome evolution
 
 # load packages
 library(ape) # basic phylo tools
@@ -37,22 +37,22 @@ rm(foo)
 lk.mk <- make.mkn(trees.pruned[[1]], states = chroms,
                   k = ncol(chroms), strict = F,
                   control = list(method = "ode"))
-# we will do this next bit twice to get w with and without polyploidy
-# first with polyploidy
-# con.lk.mk<-constrainMkn(data = chroms, lik = lk.mk, hyper = T,
-#                         polyploidy = F, verbose = F,
-#                         constrain = list(drop.demi = T, drop.poly = T))
-# prior <- make.prior.exponential(2)
-# temp.wop <- mcmc(con.lk.mk,
-#                  x.init = runif(6, 0, 1),
-#                  prior = prior,
-#                  w = 1,
-#                  nsteps = 20,
-#                  upper = 50,
-#                  lower = 0)
-# temp.wop <- temp.wop[-c(1:10), ]
-# w.wop <- diff(sapply(temp.wop[2:7],
-#                      quantile, c(.05, .95)))
+#we will do this next bit twice to get w with and without polyploidy
+# first with out polyploidy
+con.lk.mk<-constrainMkn(data = chroms, lik = lk.mk, hyper = T,
+                        polyploidy = F, verbose = F,
+                        constrain = list(drop.demi = T, drop.poly = T))
+prior <- make.prior.exponential(2)
+temp.wop <- mcmc(con.lk.mk,
+                 x.init = runif(6, 0, 1),
+                 prior = prior,
+                 w = 1,
+                 nsteps = 20,
+                 upper = 50,
+                 lower = 0)
+temp.wop <- temp.wop[-c(1:10), ]
+w.wop <- diff(sapply(temp.wop[2:7],
+                     quantile, c(.05, .95)))
 # now with polyploidy
 con.lk.mk<-constrainMkn(data = chroms, lik = lk.mk, hyper = T,
                         polyploidy = F, verbose = F,
@@ -74,7 +74,6 @@ w.wp <- diff(sapply(temp.wp[2:9],
 #  Now we can do our full run   #
 #                               #
 #################################
-#iter <- 1 # just for testing
 # this will allow us to run on 14 cores
 registerDoMC(14)
 result <- list()
@@ -106,9 +105,10 @@ x <- foreach(i=1:100) %dopar%{
                       nsteps = iter,
                       upper = 50,
                       lower = 0)
-  # just in case we have a crash lets write results for each tree
-  write.csv(result[[i]], file=paste("/results/tree.nop",i,".csv", sep=""))
 }
+
+
+
 results <- list()
 for(i in 1:100){
   scaler <- max(branching.times(trees.pruned[[i]]))
@@ -147,8 +147,6 @@ x <- foreach(i=1:100) %dopar%{
                       nsteps = iter,
                       upper = 50,
                       lower = 0)
-  # just in case we have a crash lets write results for each tree
-  #write.csv(result[[i]], file=paste("/results/tree.p",i,".csv", sep=""))
 }
 results <- list()
 depths <- getData(trees, dat)[[3]]
