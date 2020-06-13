@@ -1,3 +1,6 @@
+This repository contains the code and data necessary to reproduce all results and figures in the paper: Holocentric and monocentric chromosomes evolve at equal rates. Please contact coleoguy@gmail.com if you have any questions.
+
+
 Phylogenies are drawn from:
 Church, S.H., Donoughe, S., de Medeiros, B.A. and Extavour, C.G., 2019. Insect egg size and shape evolve with ecology but not developmental rate. Nature, 571(7763), pp.58-62.
 
