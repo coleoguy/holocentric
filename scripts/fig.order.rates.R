@@ -6,8 +6,11 @@ load(file="../results/order.rates.RData")
 
 # get parameter names correct
 foo <- as.character(results.wop$type)
+#assigns fission to ascending rates
 foo[foo=="asc"] <- "fission"
+#assigns fusion to descending rates
 foo[foo=="desc"] <- "fusion"
+#assigns type based on the vector foo which contains fission and fusions
 results.wop$type <- as.factor(foo)
 
 foo <- as.character(results.wp$type)
@@ -62,3 +65,13 @@ ggplot(results.wp, aes(x=type, y=rate, color=order)) +
                size = 0.4, position = position_jitterdodge(0),
                inherit.aes = FALSE) # exported 6x4
 
+
+#credible intervals for wp
+credible.wp <- aggregate(x = results.wp$rate,
+                 by = list(results.wp$order, results.wp$type),
+                 FUN = p.interval)
+
+#credible intervals for wop
+credible.wop <- aggregate(x = results.wop$rate,
+                 by = list(results.wop$order, results.wop$type),
+                 FUN = p.interval)
