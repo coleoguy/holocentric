@@ -10,6 +10,19 @@ hpdfis <- HPDinterval(as.mcmc(fission))
 hpdfus <- HPDinterval(as.mcmc(fusion))
 hpdpol <- HPDinterval(as.mcmc(poly))
 
+#state 1 = holocentric, state 2 = monocentric
+HPDinterval(as.mcmc(rates$asc1))
+HPDinterval(as.mcmc(rates$asc2))
+
+HPDinterval(as.mcmc(rates$desc1))
+HPDinterval(as.mcmc(rates$desc2))
+
+HPDinterval(as.mcmc(rates$pol1))
+HPDinterval(as.mcmc(rates$pol2))
+
+colMeans(rates)
+
+
 cols <- c(rgb(1, 0, 0, .5), rgb(0, 1, 0, .5), rgb(0, 0, 1, .5))
 plot(0,0,col="white",
      ylim=c(-50,700),
