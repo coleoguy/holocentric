@@ -23,6 +23,9 @@ results.wp$type <- as.factor(foo)
 foo <- aggregate(x = results.wp$rate,
                  by = list(results.wp$order, results.wp$type),
                  FUN = mean)
+foo2 <- aggregate(x = results.wop$rate,
+                 by = list(results.wop$order, results.wop$type),
+                 FUN = mean)
 foo <- foo[foo$Group.2=="fission",]
 foo <- foo[order(foo$x, decreasing=T),]
 x <- row.names(foo)[which(foo$Group.1 %in% c("Hemiptera","Lepidoptera","Odonata"))]
@@ -65,9 +68,9 @@ ggplot(results.wp, aes(x=type, y=rate, color=order)) +
                size = 0.4, position = position_jitterdodge(0),
                inherit.aes = FALSE) # exported 6x4
 
-
+library(coda)
 #credible intervals for wp
-credible.wp <- aggregate(x = results.wp$rate,
+HPD.wp <- aggregate(x = results.wp$rate,
                  by = list(results.wp$order, results.wp$type),
                  FUN = p.interval)
 
